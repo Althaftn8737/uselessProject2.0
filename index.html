@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parippu Vada Roundness Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff8a00, #ffa726, #ffcc02);
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #d4691a, #8b4513);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px 20px;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ff8a00;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin: 20px 0;
+            background: #fff8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #d4691a;
+            background: #ffede0;
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #8b4513;
+            background: #ffe0cc;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #ff8a00;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff8a00, #ffa726);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(255, 138, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 138, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #8b4513, #a0522d);
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            display: none;
+        }
+
+        .results-section {
+            background: #fff8f0;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .score-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ff8a00;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .verdict {
+            font-size: 1.5em;
+            color: #8b4513;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #ffe0cc;
+            border-top: 4px solid #ff8a00;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ffe0cc;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff8a00, #ffa726);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #8b4513;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
+            
+            .score-display {
+                font-size: 3em;
+            }
+            
+            .verdict {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥪 Parippu Vada Roundness Tester</h1>
+            <p>The ultimate tool for vada perfection analysis!</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload your parippu vada</div>
+                    <div class="upload-subtext">or drag and drop your image here</div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*">
+                
+                <div>
+                    <button class="btn secondary" id="sampleBtn">Use Sample Vada</button>
+                    <button class="btn" id="analyzeBtn" style="display: none;">Analyze Roundness</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing vada roundness with advanced algorithms...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <img id="imagePreview" class="image-preview" alt="Uploaded vada">
+            </div>
+
+            <div class="results-section" id="results">
+                <h2>Roundness Analysis Results</h2>
+                <div class="score-display" id="scoreDisplay">--</div>
+                <div>out of 100</div>
+                <div class="verdict" id="verdict">Upload a vada to get started!</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Made with ❤ for all vada enthusiasts in Kerala and beyond!
+        </div>
+    </div>
+
+    <script>
+        let currentImage = null;
+
+        // Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const sampleBtn = document.getElementById('sampleBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const verdict = document.getElementById('verdict');
+        const progressFill = document.getElementById('progressFill');
+
+        // Verdict messages based on score
+        const verdicts = {
+            90: ["Perfect Circle! 🏆", "Auntie would be SO proud!", "This vada has achieved enlightenment!", "NASA wants to study this roundness!"],
+            80: ["Excellent! 👌", "Almost perfect roundness!", "Auntie approves with a big smile!", "This vada could win competitions!"],
+            70: ["Very Good! 😊", "Nice round shape!", "Auntie nods approvingly!", "Solid vada craftsmanship!"],
+            60: ["Good! 👍", "Decently round!", "Auntie says 'Not bad, not bad'", "Room for improvement, but tasty!"],
+            50: ["Average 😐", "Could be rounder...", "Auntie suggests more practice", "Tastes good, looks... okay"],
+            40: ["Needs Work 🤔", "Is this... oval?", "Auntie is concerned", "Maybe try a different technique?"],
+            30: ["Poor Roundness 😬", "Sir, this is suspicious...", "Auntie is shaking her head", "Are you sure this is a vada?"],
+            20: ["Very Poor 😟", "This is definitely not round", "Auntie: 'What happened here?'", "Maybe it's modern art?"],
+            10: ["Terrible 😱", "Sir... this is not a vada", "Auntie has left the chat", "I'm calling the vada police!"],
+            0: ["Not a Vada! 🚨", "This is clearly not food", "Auntie has disowned you", "System.exe has stopped working"]
+        };
+
+        // Sample vada as base64 (simple circular brown shape)
+        const sampleVada = "data:image/svg+xml;base64," + btoa(`
+            <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="vadaGrad" cx="45%" cy="45%">
+                        <stop offset="0%" style="stop-color:#D4691A"/>
+                        <stop offset="70%" style="stop-color:#8B4513"/>
+                        <stop offset="100%" style="stop-color:#654321"/>
+                    </radialGradient>
+                </defs>
+                <circle cx="150" cy="150" r="120" fill="url(#vadaGrad)" stroke="#654321" stroke-width="3"/>
+                <circle cx="150" cy="150" r="40" fill="none" stroke="#A0522D" stroke-width="4"/>
+                <circle cx="130" cy="130" r="8" fill="#654321" opacity="0.7"/>
+                <circle cx="170" cy="140" r="6" fill="#654321" opacity="0.7"/>
+                <circle cx="160" cy="170" r="7" fill="#654321" opacity="0.7"/>
+                <circle cx="140" cy="165" r="5" fill="#654321" opacity="0.7"/>
+            </svg>
+        `);
+
+        // Upload area interactions
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+        analyzeBtn.addEventListener('click', analyzeVada);
+        sampleBtn.addEventListener('click', useSampleVada);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImage = e.target.result;
+                imagePreview.src = currentImage;
+                imagePreview.style.display = 'block';
+                analyzeBtn.style.display = 'inline-block';
+                results.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function useSampleVada() {
+            currentImage = sampleVada;
+            imagePreview.src = sampleVada;
+            imagePreview.style.display = 'block';
+            analyzeBtn.style.display = 'inline-block';
+            results.style.display = 'none';
+        }
+
+        function analyzeVada() {
+            if (!currentImage) return;
+
+            loading.style.display = 'block';
+            results.style.display = 'none';
+
+            // Simulate analysis with progress bar
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 100) progress = 100;
+                progressFill.style.width = progress + '%';
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(showResults, 500);
+                }
+            }, 200);
+        }
+
+        function calculateRoundnessScore() {
+            // For sample vada, give it a perfect score
+            if (currentImage === sampleVada) {
+                return 95 + Math.random() * 5; // 95-100
+            }
+
+            // For uploaded images, generate a somewhat realistic random score
+            // Weighted towards middle values for more realistic results
+            const baseScore = Math.random();
+            let score;
+
+            if (baseScore < 0.1) {
+                score = Math.random() * 20; // 0-20 (very poor)
+            } else if (baseScore < 0.25) {
+                score = 20 + Math.random() * 30; // 20-50 (poor to average)
+            } else if (baseScore < 0.75) {
+                score = 50 + Math.random() * 30; // 50-80 (average to good)
+            } else {
+                score = 80 + Math.random() * 20; // 80-100 (good to perfect)
+            }
+
+            return Math.round(score);
+        }
+
+        function getVerdict(score) {
+            let range = 0;
+            if (score >= 90) range = 90;
+            else if (score >= 80) range = 80;
+            else if (score >= 70) range = 70;
+            else if (score >= 60) range = 60;
+            else if (score >= 50) range = 50;
+            else if (score >= 40) range = 40;
+            else if (score >= 30) range = 30;
+            else if (score >= 20) range = 20;
+            else if (score >= 10) range = 10;
+            else range = 0;
+
+            const messages = verdicts[range];
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        function showResults() {
+            loading.style.display = 'none';
+            
+            const score = calculateRoundnessScore();
+            const verdictText = getVerdict(score);
+
+            scoreDisplay.textContent = score;
+            verdict.textContent = verdictText;
+            
+            // Add color coding to score
+            if (score >= 80) {
+                scoreDisplay.style.color = '#28a745';
+            } else if (score >= 60) {
+                scoreDisplay.style.color = '#ffa726';
+            } else {
+                scoreDisplay.style.color = '#dc3545';
+            }
+
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
