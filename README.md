@@ -10,7 +10,7 @@ The image is showing a circular parippu vada, but the tool is detecting almost z
 This happens when the image has no solid contrasting background for contour detection.
 Using a plain white or dark background will allow the algorithm to properly detect the shape.
 
-Project-link:-  meek-sorbet-d7e705.netlify.app
+Project-link:-  https://app.netlify.com/projects/meek-sorbet-d7e705/overview
 
 Technologies/Components Used
 Software:
