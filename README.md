@@ -6,7 +6,9 @@ description
 The image is showing a circular parippu vada, but the tool is detecting almost zero circularity because it’s picking up the transparent background instead of the actual vada edge.
 This happens when the image has no solid contrasting background for contour detection.
 Using a plain white or dark background will allow the algorithm to properly detect the shape.
-project link ;- meek-sorbet-d7e705.netlify.app
+
+project link ;-" meek-sorbet-d7e705.netlify.app "
+
 Technologies/Components Used
 Software:
 Languages: JavaScript, HTML, CSS, Python
